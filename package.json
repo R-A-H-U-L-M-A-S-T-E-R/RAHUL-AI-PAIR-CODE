@@ -1,13 +1,13 @@
 {
-  "name": "x-bot-md-pair",
+  "name": "rahul-ai-pair",
   "version": "1.5.0",
   "description": "Web pair for every bot",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "pm2 start index.js --attach --name X-MD-PAIR",
-    "stop": "pm2 stop X-MD-PAIR"
+    "start": "pm2 start index.js --attach --name RAHUL-AI-PAIR",
+    "stop": "pm2 stop RAHUL-AI-PAIR"
   },
   "author": "aswin Sparky",
   "dependencies": {
