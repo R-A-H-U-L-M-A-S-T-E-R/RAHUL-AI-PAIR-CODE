@@ -21,7 +21,8 @@ app.get('/code', async (req, res) => {
         return res.json({ error: 'Phone number is required!' });
     }
 
-    phoneNumber = phoneNumber.replace(/[^0-9]/g, '919356730236');
+    // Fix: Fkt numbers filter karne (number replace honar nahi)
+    phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
     const sessionDir = path.join(__dirname, 'temp_session_' + Date.now());
 
     try {
@@ -49,8 +50,25 @@ app.get('/code', async (req, res) => {
         sock.ev.on('connection.update', async (update) => {
             const { connection } = update;
             if (connection === 'open') {
-                console.log('WhatsApp connected successfully!');
-                // Ithe tumhi session idwaigairah handle karu shakta
+                console.log('✅ WhatsApp connected successfully!');
+
+                // --- RAHUL-AI~ Session ID Generation ---
+                try {
+                    const credsStr = JSON.stringify(sock.authState.creds, (key, value) =>
+                        typeof value === 'bigint' ? value.toString() : value
+                    );
+                    const base64Creds = Buffer.from(credsStr).toString('base64');
+                    const sessionId = `RAHUL-AI~${base64Creds}`;
+
+                    console.log('\n========================================');
+                    console.log('📦 TUMCHI SESSION ID:');
+                    console.log('\x1b[33m%s\x1b[0m', sessionId);
+                    console.log('========================================\n');
+                } catch (e) {
+                    console.error('Session ID error:', e);
+                }
+                // ----------------------------------------
+
                 setTimeout(() => {
                     fs.rmSync(sessionDir, { recursive: true, force: true });
                 }, 10000);
