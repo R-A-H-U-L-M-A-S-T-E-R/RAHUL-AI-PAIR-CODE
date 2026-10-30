@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.0",
-    "pino": "^8.19.0"
+    "pino": "^8.19.0",
+    "pino-pretty": "^11.0.0",
+    "protobufjs": "^7.2.6"
   }
 }
