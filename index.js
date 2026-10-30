@@ -7,11 +7,12 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
 app.get('/code', async (req, res) => {
     let phoneNumber = req.query.phone;
     if (!phoneNumber) {
-        return res.status(400).json({ error: 'Phone number is required!' });
+        return res.json({ error: 'Phone number is required!' });
     }
 
     phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
@@ -32,22 +33,16 @@ app.get('/code', async (req, res) => {
             let code = await sock.requestPairingCode(phoneNumber);
             code = code?.match(/.{1,4}/g)?.join("-") || code;
             
-            if (!res.headersSent) {
-                return res.json({ code: code });
-            }
+            return res.json({ code: code });
         } else {
-            if (!res.headersSent) {
-                return res.json({ code: 'ALREADY_REGISTERED' });
-            }
+            return res.json({ code: 'ALREADY_REGISTERED' });
         }
 
         sock.ev.on('creds.update', saveCreds);
 
     } catch (err) {
-        console.error('API Error:', err);
-        if (!res.headersSent) {
-            return res.status(500).json({ error: 'Failed to generate pairing code!' });
-        }
+        console.error(err);
+        return res.json({ error: 'Failed to generate pairing code!' });
     }
 });
 
