@@ -46,4 +46,7 @@ app.get('/code', async (req, res) => {
     }
 });
 
-export default app;
+// Vercel function handler export
+export default function handler(req, res) {
+    return app(req, res);
+}
