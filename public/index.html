@@ -206,11 +206,11 @@
                 <input type="text" id="phone" value="919356730236" placeholder="Enter number with country code">
             </div>
 
-            <button class="btn" onclick="generateCode()">Get Pairing Code</button>
+            <button class="btn" onclick="generateCode()" id="genBtn">Get Pairing Code</button>
 
             <div class="result-box" id="resultBox">
                 <label>Your Pairing Code:</label>
-                <div class="code-display" id="codeDisplay">ABC1-XYZ2</div>
+                <div class="code-display" id="codeDisplay">---</div>
                 <button class="btn" style="background: linear-gradient(135deg, #00b09b, #96c93d);" onclick="copyCode()">Copy Code</button>
             </div>
 
@@ -224,42 +224,51 @@
             document.body.classList.toggle('light-mode');
         }
 
-        // Generate Code Action (Connect with your Backend API)
-        function generateCode() {
-            const phone = document.getElementById('phone').value;
-            if(!phone) {
+        // Generate Code Action connected to Backend API
+        async function generateCode() {
+            const phoneInput = document.getElementById('phone').value.trim();
+            if(!phoneInput) {
                 alert('Krupaya WhatsApp number taka!');
                 return;
             }
 
-            // Dummy simulation for frontend UI test (Replace with fetch API to your backend server)
             const resultBox = document.getElementById('resultBox');
             const codeDisplay = document.getElementById('codeDisplay');
-            
+            const genBtn = document.getElementById('genBtn');
+
             resultBox.style.display = 'block';
             codeDisplay.innerText = 'GENERATING...';
+            genBtn.disabled = true;
+            genBtn.style.opacity = '0.6';
 
-            // Jar tumhi backend (Express) sobat connect karat asal tar asa fetch wapra:
-            /*
-            fetch(`/code?phone=${phone}`)
-                .then(res => res.json())
-                .then(data => {
+            try {
+                // Jar Vercel var api/ folder use karat asal tar URL `/api/code?phone=` asel
+                const response = await fetch(`/api/code?phone=${encodeURIComponent(phoneInput)}`);
+                const data = await response.json();
+
+                if (data.code) {
                     codeDisplay.innerText = data.code;
-                })
-                .catch(err => {
-                    codeDisplay.innerText = 'ERROR!';
-                });
-            */
-
-            // Simulation delay for demo purpose:
-            setTimeout(() => {
-                codeDisplay.innerText = 'RAHUL-' + Math.floor(1000 + Math.random() * 9000);
-            }, 1000);
+                } else if (data.error) {
+                    codeDisplay.innerText = 'ERROR: ' + data.error;
+                } else {
+                    codeDisplay.innerText = 'FAILED TO GET CODE';
+                }
+            } catch (err) {
+                console.error(err);
+                codeDisplay.innerText = 'SERVER ERROR!';
+            } finally {
+                genBtn.disabled = false;
+                genBtn.style.opacity = '1';
+            }
         }
 
         // Copy Code Function with Animation
         function copyCode() {
             const codeText = document.getElementById('codeDisplay').innerText;
+            if(codeText === 'GENERATING...' || codeText.includes('ERROR') || codeText === '---') {
+                alert('Copy karnyasathi valid code nahi ahe!');
+                return;
+            }
             navigator.clipboard.writeText(codeText).then(() => {
                 alert('Pairing Code successfully clipboard var copy zala! 📋');
             });
